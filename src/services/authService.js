@@ -1,6 +1,7 @@
 const prisma = require('../config/prisma');
-const generateToken = require('../utils/jwt');
+const jwt = require('../utils/jwt');
 const { comparePassword, hashPassword } = require('../utils/hash');
+const {BadRequest} = require('../error/errorFactory');
 
 async function authenticateUser(data) {
     const findUser = await prisma.user.findUnique({
@@ -9,19 +10,19 @@ async function authenticateUser(data) {
         }
     });
 
-    if (!findUser) {
-        throw new Error('Email dan password salah');
+    if (data.password.length === 0) {
+        throw BadRequest('Password harus minimal 8 karakter');
     }
 
+    if (!findUser) {
+        throw BadRequest('Email dan password salah');
+    }
 
     const isPasswordValid = await comparePassword(data.password, findUser.password);
     if (!isPasswordValid) {
-        throw new Error('Email dan password salah');
+        throw BadRequest('Email dan password salah');
     }
-    if (isPasswordValid.length === 0) {
-        throw new Error('Password harus minimal 8 karakter');
-    }
-    const token = generateToken(findUser);
+    const token = jwt.generateToken(findUser);
 
     return token;
 }
@@ -35,7 +36,7 @@ async function registerUser(data) {
         }
     });
     if (existingUser) {
-        throw new Error('Email sudah terdaftar');
+        throw BadRequest('Email sudah terdaftar');
     }
     const hashedPassword = await hashPassword(data.password);
     const newUser = await prisma.user.create({

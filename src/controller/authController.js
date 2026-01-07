@@ -18,7 +18,11 @@ async function register(req, res, next) {
         const newUser = await authCon.registerUser(req.body);
         res.status(201).json({ 
             message: "Registrasi berhasil",
-            user:  newUser
+            user:  {
+                id: newUser.id,
+                username : newUser.username,
+                email: newUser.email
+            }
          });
     } catch (error) {
         next(error);
