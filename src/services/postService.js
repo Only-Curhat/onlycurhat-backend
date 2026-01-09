@@ -2,16 +2,25 @@ const prisma = require('../config/prisma');
 const { BadRequest, NotFound, Forbidden } = require('../error/errorFactory');
 
 async function createPost(data, userId) {
-    if(!userId) {
+    if (!userId) {
         throw Forbidden('Anda harus login untuk membuat postingan');
+    }
+
+    const user = await prisma.user.findUnique({
+        where: { id: Number(userId) }
+    });
+
+    if (!user) {
+        throw Forbidden('User tidak valid');
     }
 
     const newPost = await prisma.post.create({
         data: {
             content: data.content,
-            authorId: userId
+            authorId: Number(userId)
         }
     });
+
     return newPost;
 }
 
@@ -39,9 +48,16 @@ async function getPostById(postId) {
             id: postId
         },
         include: {
-            author: true,
-            comments: true
-        }
+            author: {
+                select: {
+                    id: true,
+                    username: true
+                        }
+                    },
+            _count: {
+            select: { comments: true }
+                   }
+    }
     });
     if (!post) {
         throw NotFound('Postingan tidak ditemukan');
@@ -52,15 +68,40 @@ async function getPostById(postId) {
 async function getPostsByAuthor(authorId) {
     const posts = await prisma.post.findMany({
         where: {
-            authorId: authorId
+            authorId: Number(authorId)
         },
         include: {  
-            author: true,
-            comments: true
+            author: {
+                select: {
+                    id: true,
+                    username: true
+                }
+            },
+             _count: {
+            select: { comments: true }
+        }
         }
     });
+
     return posts;
 }  
+
+
+async function getPostMe(userId) {
+    const posts = await prisma.post.findMany({
+        where: {
+            authorId: Number(userId)
+        },
+        include: {
+             _count: {
+            select: { comments: true }
+        }
+        }
+    });
+
+    return posts;
+    
+}
 
 async function showEditPost(postId, userId) {
     const post = await prisma.post.findUnique({
@@ -128,6 +169,7 @@ module.exports = {
     getPostAll,
     getPostById,
     getPostsByAuthor,
+    getPostMe,
     showEditPost,
     updatePost,
     deletePost

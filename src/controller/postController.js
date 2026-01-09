@@ -27,7 +27,7 @@ async function getPostAll (req, res, next){
 
 async function getPostById (req, res, next){
     try {
-        const postId = parseInt(req.params.id);
+        const postId = parseInt(req.params.postId);
         const post = await postService.getPostById(postId);
         res.status(200).json({
             message: "Berhasil mendapatkan postingan",
@@ -40,7 +40,8 @@ async function getPostById (req, res, next){
 
 async function getPostsByAuthor (req, res, next){
     try {
-        const authorId = parseInt(req.params.authorId);
+        const authorId = req.params.authorId;
+        console.log('authorId:', req.params.authorId);
         const posts = await postService.getPostsByAuthor(authorId);
         res.status(200).json({
             message: "Berhasil mendapatkan postingan berdasarkan author",
@@ -54,7 +55,7 @@ async function getPostsByAuthor (req, res, next){
 async function getPostMe(req, res, next) {
     try {
         const userId = req.user.id;
-        const posts = await postService.getPostsByAuthor(userId);
+        const posts = await postService.getPostMe(userId);
         res.status(200).json({
             message: "Berhasil mendapatkan postingan user sendiri",
             posts: posts
@@ -68,7 +69,7 @@ async function getPostMe(req, res, next) {
 
 async function showEditPost (req, res, next){
     try {
-        const postId = parseInt(req.params.id);
+        const postId = parseInt(req.params.postId);
         const userId = req.user.id;
         const post = await postService.showEditPost(postId, userId);
         res.status(200).json({
@@ -82,7 +83,7 @@ async function showEditPost (req, res, next){
 
 async function updatePost (req, res, next){
     try {
-        const postId = parseInt(req.params.id);
+        const postId = parseInt(req.params.postId);
         const userId = req.user.id;
         const updatedPost = await postService.updatePost(postId, req.body, userId);
         res.status(200).json({  
@@ -96,7 +97,7 @@ async function updatePost (req, res, next){
 
 async function deletePost (req, res, next){
     try {
-        const postId = parseInt(req.params.id);
+        const postId = parseInt(req.params.postId);
         const userId = req.user.id;
         await postService.deletePost(postId, userId);
         res.status(200).json({
@@ -113,6 +114,8 @@ module.exports = {
     getPostById,
     getPostMe,
     getPostsByAuthor,
-    showEditPost
+    showEditPost,
+    updatePost,
+    deletePost
 };
 
