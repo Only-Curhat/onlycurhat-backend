@@ -54,10 +54,8 @@ async function getPostById(postId) {
                     username: true
                         }
                     },
-            _count: {
-            select: { comments: true }
+                    comments: true 
                    }
-    }
     });
     if (!post) {
         throw NotFound('Postingan tidak ditemukan');

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authRouter = require("./auth");
 const postRouter = require("./post");
+const commentRouter = require("./comment");
 
 const defaultRoute = [
 {
@@ -12,6 +13,10 @@ const defaultRoute = [
 {
     path: "/post",
     router:postRouter,
+},
+{
+    path: "/",
+    router: commentRouter,
 }
 ];
 
